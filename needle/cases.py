@@ -68,11 +68,15 @@ class NeedleTestCase(unittest2.TestCase):
             element.get_screenshot().save(filename)
         else:
             image = Image.open(filename)
+
             screenshot = element.get_screenshot()
+            screenshot_filename = filename.replace('.png','-compare.png')
+            screenshot.save(screenshot_filename)
+            screenshot = Image.open(screenshot_filename)
+
             diff = ImageDiff(screenshot, image)
             distance = abs(diff.get_distance())
             if distance > threshold:
-                screenshot.save('%s%s' %("compare-",filename,))
                 raise AssertionError("The saved screenshot for '%s' did not match "
                                      "the screenshot captured (by a distance of %.2f)" 
                                      % (name, distance))

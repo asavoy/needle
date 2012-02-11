@@ -69,9 +69,10 @@ class NeedleTestCase(unittest2.TestCase):
         else:
             image = Image.open(filename)
             # now take another screenshot and re open it (yea i know) but there were issues wth colours
-            screenshot = element.get_screenshot()
+
             screenshot_filename = filename.replace('.png','-compare.png')
-            screenshot.save(screenshot_filename)
+            screenshot = element.get_screenshot().save(screenshot_filename)
+
             screenshot = Image.open(screenshot_filename)
 
             diff = ImageDiff(screenshot, image)

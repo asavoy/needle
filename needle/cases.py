@@ -68,7 +68,7 @@ class NeedleTestCase(unittest2.TestCase):
             element.get_screenshot().save(filename)
         else:
             image = Image.open(filename)
-
+            # now take another screenshot and re open it (yea i know) but there were issues wth colours
             screenshot = element.get_screenshot()
             screenshot_filename = filename.replace('.png','-compare.png')
             screenshot.save(screenshot_filename)

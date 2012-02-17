@@ -1,8 +1,13 @@
 from diff import ImageDiff
 from driver import NeedleWebDriver
-import os
+import os, sys
 from PIL import Image
-import sys
+from needle.watermark import watermark
+from datetime import datetime
+import time
+
+today = datetime.today()
+now = time.time()
 
 
 class Spindle(object):
@@ -66,24 +71,44 @@ class Spindle(object):
         if self.capture:
             element.get_screenshot().save(filename)
         else:
+            if not os.path.exists(filename):
+                #element.get_screenshot().save(filename)
+                raise AssertionError("The Base Screenshot for '%s' does not exist, run with --generate-base-screenshot"
+                                     % (filename,))
+
             image = Image.open(filename)
             # now take another screenshot and re open it (yea i know) but there were issues wth colours
 
-            screenshot_filename = filename.replace('.png','-compare.png')
-            screenshot = element.get_screenshot().save(screenshot_filename)
+            compare_shot_filename = filename.replace('.png','-compare.png')
+            screenshot = element.get_screenshot().save(compare_shot_filename)
 
-            screenshot = Image.open(screenshot_filename)
-            
-            diff = ImageDiff(screenshot, image)
-            distance = abs(diff.get_distance())
-            if distance > threshold:
-                raise AssertionError("The saved screenshot for '%s' did not match "
-                                     "the screenshot captured (by a distance of %.2f)" 
-                                     % (name, distance))
+            screenshot = Image.open(compare_shot_filename)
+
+            try:
+                diff = ImageDiff(screenshot, image)
+                distance = abs(diff.get_distance())
+                if distance > threshold:
+                    raise AssertionError("The saved screenshot for '%s' did not match "
+                                         "the screenshot captured (by a distance of %.2f)" 
+                                         % (name, distance))
+                else:
+                    self.remove_screenshot(compare_shot_filename)
+            except:
+                # Generate watermarked difference file
+                comparison_filename = filename.replace('.png','-%s-fail.png' % (now, ))
+                fail_path, filename = os.path.split(comparison_filename)
+                comparison_filename = '%s/%s/%s' % (fail_path, 'fail', filename)
+
+                watermark(image, screenshot, 'tile', 0.3).save(comparison_filename)
+
+                self.remove_screenshot(compare_shot_filename)
+
+                raise AssertionError("The Base Screenshot differs from the Comparison Screenshot")
 
 
+    def remove_screenshot(self, screenshot_path):
+        # remove compare file
+        if os.path.exists(screenshot_path):
+            os.remove(screenshot_path)
 
-
-
-    
 

@@ -32,10 +32,10 @@ class Spindle(object):
         self.capture = kwargs['capture'] if 'capture' in kwargs else False
         self.output_path = kwargs['output_path'] if 'output_path' in kwargs else os.path.dirname(__file__)
 
-    # def __call__(self, *args, **kwargs):
-    #     self.driver = self.get_web_driver()
-    #     super(Spindle, self).__call__(*args, **kwargs)
-    #     self.driver.close()
+    def __call__(self, *args, **kwargs):
+        self.driver = self.get_web_driver()
+        super(Spindle, self).__call__(*args, **kwargs)
+        self.driver.close()
 
     def get_web_driver(self):
         return NeedleWebDriver(
@@ -43,6 +43,10 @@ class Spindle(object):
             self.driver_desired_capabilities,
             self.driver_browser_profile
         )
+
+    def getPageHTML(self, url):
+        self.driver.get(url)
+        return self.driver.page_source
 
     def assertScreenshot(self, element, name, threshold=0.1):
         """
@@ -77,8 +81,8 @@ class Spindle(object):
                 #                     % (filename,))
 
             image = Image.open(filename)
-            # now take another screenshot and re open it (yea i know) but there were issues wth colours
 
+            # now take another screenshot and re open it (yea i know) but there were issues wth colours
             compare_shot_filename = filename.replace('.png','-compare.png')
             screenshot = element.get_screenshot().save(compare_shot_filename)
 

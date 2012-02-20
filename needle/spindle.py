@@ -72,9 +72,9 @@ class Spindle(object):
             element.get_screenshot().save(filename)
         else:
             if not os.path.exists(filename):
-                #element.get_screenshot().save(filename)
-                raise AssertionError("The Base Screenshot for '%s' does not exist, run with --generate-base-screenshot"
-                                     % (filename,))
+                element.get_screenshot().save(filename)
+                #raise AssertionError("The Base Screenshot for '%s' does not exist, run with --generate-base-screenshot"
+                #                     % (filename,))
 
             image = Image.open(filename)
             # now take another screenshot and re open it (yea i know) but there were issues wth colours

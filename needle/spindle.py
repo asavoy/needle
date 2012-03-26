@@ -1,3 +1,4 @@
+from django.conf import settings
 from diff import ImageDiff
 from driver import NeedleWebDriver
 import os, sys
@@ -9,6 +10,10 @@ import time
 today = datetime.today()
 now = time.time()
 
+SELENIUM_BROWSER_CAPABILITIES  = getattr(settings, 'SELENIUM_BROWSER_CAPABILITIES', dict({
+    'browserName': 'firefox',
+}))
+
 
 class Spindle(object):
     """
@@ -19,9 +24,7 @@ class Spindle(object):
     driver = None
 
     driver_command_executor = 'http://127.0.0.1:4444/wd/hub'
-    driver_desired_capabilities = {
-        'browserName': 'firefox',
-    }
+    driver_desired_capabilities = SELENIUM_BROWSER_CAPABILITIES
     driver_browser_profile = None
 
     capture = False
@@ -33,7 +36,6 @@ class Spindle(object):
         self.output_path = kwargs['output_path'] if 'output_path' in kwargs else os.path.dirname(__file__)
 
     def __call__(self, *args, **kwargs):
-        self.driver = self.get_web_driver()
         super(Spindle, self).__call__(*args, **kwargs)
         self.driver.close()
 
@@ -77,8 +79,6 @@ class Spindle(object):
         else:
             if not os.path.exists(filename):
                 element.get_screenshot().save(filename)
-                #raise AssertionError("The Base Screenshot for '%s' does not exist, run with --generate-base-screenshot"
-                #                     % (filename,))
 
             image = Image.open(filename)
 
